@@ -1,5 +1,3 @@
-/fcfs
-/priroty
-/reader_writter
-/sb
-/sjf
+*
+!*.c
+!Makefile
