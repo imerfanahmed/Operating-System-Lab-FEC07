@@ -1,64 +1,74 @@
-
 #include <stdio.h>
- 
-//Function to swap two variables
-void swap(int *a,int *b)
-{
-    int temp=*a;
-    *a=*b;
-    *b=temp;
-}
-int main()
-{
-    int n;
-    printf("Enter Number of Processes: ");
-    scanf("%d",&n);
- 
-    // b is array for burst time, p for priority and index for process id
-    int b[n],p[n],index[n];
-    for(int i=0;i<n;i++)
-    {
-        printf("Enter Burst Time and Priority Value for Process %d: ",i+1);
-        scanf("%d %d",&b[i],&p[i]);
-        index[i]=i+1;
-    }
-    for(int i=0;i<n;i++)
-    {
-        int a=p[i],m=i;
- 
-        //Finding out highest priority element and placing it at its desired position
-        for(int j=i;j<n;j++)
-        {
-            if(p[j] > a)
-            {
-                a=p[j];
-                m=j;
+
+// Structure to represent a process
+struct Process {
+    int pid;        // Process ID
+    int arrival;    // Arrival time
+    int burst;      // Burst time
+    int priority;   // Priority
+    int waiting;    // Waiting time
+    int turnaround; // Turnaround time
+};
+
+// Function to sort processes by priority and then by arrival time
+void sortProcesses(struct Process proc[], int n) {
+    struct Process temp;
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (proc[i].priority > proc[j].priority ||
+               (proc[i].priority == proc[j].priority && proc[i].arrival > proc[j].arrival)) {
+                temp = proc[i];
+                proc[i] = proc[j];
+                proc[j] = temp;
             }
         }
- 
-        //Swapping processes
-        swap(&p[i], &p[m]);
-        swap(&b[i], &b[m]);
-        swap(&index[i],&index[m]);
     }
- 
-    // T stores the starting time of process
-    int t=0;
- 
-    //Printing scheduled process
-    printf("Order of process Execution is\n");
-    for(int i=0;i<n;i++)
-    {
-        printf("P%d is executed from %d to %d\n",index[i],t,t+b[i]);
-        t+=b[i];
+}
+
+// Function to calculate waiting time and turnaround time
+void calculateTimes(struct Process proc[], int n) {
+    int currentTime = 0;
+    for (int i = 0; i < n; i++) {
+        if (currentTime < proc[i].arrival) {
+            currentTime = proc[i].arrival;
+        }
+        proc[i].waiting = currentTime - proc[i].arrival;
+        currentTime += proc[i].burst;
+        proc[i].turnaround = proc[i].waiting + proc[i].burst;
     }
-    printf("\n");
-    printf("Process Id     Burst Time   Wait Time    TurnAround Time\n");
-    int wait_time=0;
-    for(int i=0;i<n;i++)
-    {
-        printf("P%d          %d          %d          %d\n",index[i],b[i],wait_time,wait_time + b[i]);
-        wait_time += b[i];
+}
+
+// Function to print the processes along with their details
+void printProcesses(struct Process proc[], int n) {
+    printf("PID\tArrival\tBurst\tPriority\tWaiting\tTurnaround\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t%d\t%d\t\t%d\t%d\n", proc[i].pid, proc[i].arrival, proc[i].burst, proc[i].priority, proc[i].waiting, proc[i].turnaround);
     }
+}
+
+int main() {
+    int n;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    struct Process proc[n];
+
+    for (int i = 0; i < n; i++) {
+        printf("Enter arrival time, burst time, and priority for process %d: ", i + 1);
+        proc[i].pid = i + 1;
+        scanf("%d%d%d", &proc[i].arrival, &proc[i].burst, &proc[i].priority);
+    }
+
+    sortProcesses(proc, n);
+    calculateTimes(proc, n);
+    printProcesses(proc, n);
+
     return 0;
 }
+// Enter the number of processes: 2
+// Enter arrival time, burst time, and priority for process 1: 1 5 3
+// Enter arrival time, burst time, and priority for process 2: 2 4 2
+// PID     Arrival Burst   Priority        Waiting Turnaround
+// 2       2       4       2               0       4
+// 1       1       5       3               5       10

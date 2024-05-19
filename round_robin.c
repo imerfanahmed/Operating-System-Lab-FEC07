@@ -1,6 +1,6 @@
 #include<stdio.h>
 #define max 20 // maximum size for array
-main()
+int main()
 {
     int i,burstTime[max],remainTime[max],remainProcess,arrivalTime[max],totalExecutionTime=0,timeQuantum,flag=0,n;
     float totalWaitingTime=0;
@@ -64,3 +64,25 @@ main()
 
 
 }
+
+// enter the Number of Process(max 20) : 4
+// Enter Arrival Time
+// For P[1]: 0
+// For P[2]: 1
+// For P[3]: 2
+// For P[4]: 4
+
+// Enter Burst Time
+// For P[1]: 5
+// For P[2]: 4
+// For P[3]: 2
+// For P[4]: 1
+
+// Enter Time Quantum :2
+
+// P[3] | waiting Time : 2
+// P[4] | waiting Time : 2
+// P[2] | waiting Time : 6
+// P[1] | waiting Time : 7
+
+// The Average Waiting Time : 4.25

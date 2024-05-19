@@ -124,3 +124,59 @@ void display(int temp[][10], int n, int m)
     }
     printf("\n");
 }
+
+// DEADLOCK AVOIDANCE USING BANKER'S ALGORITHM
+// Enter total number of processes: 5
+// Enter total number of resources: 3
+
+// Process 1
+// Allocation Resource: 0 1 0
+// Maximum Resource: 7 5 3
+
+// Process 2
+// Allocation Resource: 2
+// 0
+// 0
+// Maximum Resource: 3 2 2
+
+// Process 3
+// Allocation Resource: 3 0 2
+// Maximum Resource: 9 0 2
+
+// Process 4
+// Allocation Resource: 2 1 1
+// Maximum Resource: 2 2 2
+
+// Process 5
+// Allocation Resource: 0 0 2
+// Maximum Resource: 4 3 3
+
+// Available System Resources: 3 3 2
+
+// Process Currently-Allocated-Resources
+// P1      0       1       0
+// P2      2       0       0
+// P3      3       0       2
+// P4      2       1       1
+// P5      0       0       2
+
+
+// Process Maximum-Resources
+// P1      7       5       3
+// P2      3       2       2
+// P3      9       0       2
+// P4      2       2       2
+// P5      4       3       3
+
+
+// Process Possibly-Needed-Resources
+// P1      7       4       3
+// P2      1       2       2
+// P3      6       0       0
+// P4      0       1       1
+// P5      4       3       1
+
+
+// IT'S A SAFE STATE
+// The safe sequence is
+// P2 P4 P5 P1 P3
