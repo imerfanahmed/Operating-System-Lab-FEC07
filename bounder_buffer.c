@@ -1,107 +1,130 @@
+// C program for the above approach
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
-#include <semaphore.h>
 
-#define TRUE 1
-typedef int buffer_item;
-#define BUFFER_SIZE 5
+// Initialize a mutex to 1
+int mutex = 1;
 
-buffer_item START_NUMBER;
-buffer_item buffer[BUFFER_SIZE];
-pthread_mutex_t mutex;
-sem_t empty;
-sem_t full;
+// Number of full slots as 0
+int full = 0;
 
-int insertPointer = 0, removePointer = 0;
+// Number of empty slots as size
+// of buffer
+int empty = 10, x = 0;
 
-int insert_item(buffer_item item);
-int remove_item(buffer_item *item);
-
-void *producer(void *param);
-void *consumer(void *param);
-
-int insert_item(buffer_item item)
+// Function to produce an item and
+// add it to the buffer
+void producer()
 {
-	buffer[insertPointer] = item;
-	insertPointer = (insertPointer + 1) % BUFFER_SIZE;
-	return 0;
+    // Decrease mutex value by 1
+    --mutex;
+
+    // Increase the number of full
+    // slots by 1
+    ++full;
+
+    // Decrease the number of empty
+    // slots by 1
+    --empty;
+
+    // Item produced
+    x++;
+    printf("\nProducer produces"
+           "item %d",
+           x);
+
+    // Increase mutex value by 1
+    ++mutex;
 }
 
-int remove_item(buffer_item *item)
+// Function to consume an item and
+// remove it from buffer
+void consumer()
 {
-	*item = buffer[removePointer];
-	removePointer = (removePointer + 1) % BUFFER_SIZE;
-	return 0;
+    // Decrease mutex value by 1
+    --mutex;
+
+    // Decrease the number of full
+    // slots by 1
+    --full;
+
+    // Increase the number of empty
+    // slots by 1
+    ++empty;
+    printf("\nConsumer consumes "
+           "item %d",
+           x);
+    x--;
+
+    // Increase mutex value by 1
+    ++mutex;
 }
 
-void *producer(void *param)
+// Driver Code
+int main()
 {
-	buffer_item item;
+	printf("Enter buffer size:");
+	scanf("%d",&empty);
+    int n, i;
+    printf("\n1. Press 1 for Producer"
+           "\n2. Press 2 for Consumer"
+           "\n3. Press 3 for Exit");
 
-	while(TRUE) {
-		sleep(2);
-		sem_wait(&full);
-		pthread_mutex_lock(&mutex);
+// Using '#pragma omp parallel for'
+// can  give wrong value due to
+// synchronization issues.
 
-		item = START_NUMBER++;
-		insert_item(item);
+// 'critical' specifies that code is
+// executed by only one thread at a
+// time i.e., only one thread enters
+// the critical section at a given time
+#pragma omp critical
 
-		printf("Producer %u produced %d \n", (unsigned int)pthread_self(), item);
+    for (i = 1; i > 0; i++) {
 
-		pthread_mutex_unlock(&mutex);
-		sem_post(&empty);
-	}
-}
+        printf("\nEnter your choice:");
+        scanf("%d", &n);
 
-void *consumer(void *param)
-{
-	buffer_item item;
+        // Switch Cases
+        switch (n) {
+        case 1:
 
-	while(TRUE){
-		sleep(2);
-		sem_wait(&empty);
-		pthread_mutex_lock(&mutex);
+            // If mutex is 1 and empty
+            // is non-zero, then it is
+            // possible to produce
+            if ((mutex == 1)
+                && (empty != 0)) {
+                producer();
+            }
 
-		remove_item(&item);
-		printf("Consumer %u consumed %d \n", (unsigned int)pthread_self(), item);
+            // Otherwise, print buffer
+            // is full
+            else {
+                printf("Buffer is full!");
+            }
+            break;
 
-		pthread_mutex_unlock(&mutex);
-		sem_post(&full);
-	}
-}
+        case 2:
 
-int main(int argc, char *argv[])
-{
-	int sleepTime, producerThreads, consumerThreads;
-	int i, j;
+            // If mutex is 1 and full
+            // is non-zero, then it is
+            // possible to consume
+            if ((mutex == 1)
+                && (full != 0)) {
+                consumer();
+            }
 
-	if(argc != 5)
-	{
-		fprintf(stderr, "Useage: <sleep time> <producer threads> <consumer threads> <start number>\n");
-		return -1;
-	}
+            // Otherwise, print Buffer
+            // is empty
+            else {
+                printf("Buffer is empty!");
+            }
+            break;
 
-	sleepTime = atoi(argv[1]);
-	producerThreads = atoi(argv[2]);
-	consumerThreads = atoi(argv[3]);
-	START_NUMBER = atoi(argv[4]);
-
-	pthread_mutex_init(&mutex, NULL);
-	sem_init(&full, 0, BUFFER_SIZE);
-	sem_init(&empty, 0, 0);
-
-	pthread_t pid, cid;
-
-	for(i = 0; i < producerThreads; i++){
-		pthread_create(&pid,NULL,&producer,NULL);
-	}
-
-	for(j = 0; j < consumerThreads; j++){
-		pthread_create(&cid,NULL,&consumer,NULL);
-	}
-
-	sleep(sleepTime);
-
-	return 0;
+        // Exit Condition
+        case 3:
+            exit(0);
+            break;
+        }
+    }
 }

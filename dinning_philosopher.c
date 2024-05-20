@@ -34,9 +34,9 @@ int main() {
     for (i = 0; i < number_of_philosophers; ++i) {
         pthread_attr_init(&attributes[i]);
     }
-
+    
     for (i = 0; i < number_of_philosophers; ++i) {
-        pthread_create(&philosophers[i], &attributes[i], philosopher, (void *)(intptr_t)i);
+        pthread_create(&philosophers[i], &attributes[i], philosopher, (void *)(__intptr_t)i);
     }
 
     for (i = 0; i < number_of_philosophers; ++i) {
@@ -52,7 +52,7 @@ int main() {
 }
 
 void *philosopher(void *philosopherNumber) {
-    int num = (intptr_t)philosopherNumber;
+    int num = (__intptr_t)philosopherNumber;
     while (1) {
         think(num);
         pickUp(num);
